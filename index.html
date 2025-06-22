@@ -809,6 +809,10 @@
             }
 
             function setupInsightsAccordion() {
+                if (!insightsAccordion) {
+                    return; // Skip if accordion container doesn't exist
+                }
+                
                 insightsAccordion.innerHTML = '';
                 appData.insights.forEach((insight, index) => {
                     const accordionItem = `
@@ -936,7 +940,9 @@
                 renderConclusion();
 
                 // Add Event Listeners
-                searchInput.addEventListener('input', () => renderComparisonTable(appData.hospitals));
+                if (searchInput) {
+                    searchInput.addEventListener('input', () => renderComparisonTable(appData.hospitals));
+                }
             }
 
             init();
