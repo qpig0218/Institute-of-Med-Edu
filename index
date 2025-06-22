@@ -444,7 +444,9 @@
                                     { name: "CBME小組、CCC等" }
                                 ]},
                                 { name: "師資培育中心", children: [
-                                    { name: "教師分階認定" }
+                                    { name: "教師分階認證++教職評核小組" }
+                                    { name: "全人醫療教育+ILP/ILE小組" },
+                                    { name: "創新教學小組" },
                                 ]},
                                 { name: "臨床技能中心", children: [
                                     { name: "OSCE、擬真、IPP、IPE" }
@@ -464,7 +466,7 @@
                                 { name: "員工教育小組", children: [
                                     { name: "配合職涯發展計劃的個別化教育" }
                                 ]},
-                                { name: "醫學教育研究小組" }
+                                { name: "醫學教育暨醫品病安研究小組" }
                             ]
                         },
                         pros: [
