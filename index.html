@@ -619,8 +619,12 @@
             }
 
             function renderComparisonTable(hospitals) {
+                if (!hospitalsTableBody) {
+                    return; // Skip if table body doesn't exist
+                }
+                
                 hospitalsTableBody.innerHTML = '';
-                const searchTerm = searchInput.value.toLowerCase();
+                const searchTerm = searchInput && searchInput.value ? searchInput.value.toLowerCase() : '';
                 
                 const filteredHospitals = hospitals.filter(h => {
                     const matchesFilter = activeFilter === 'All' || h.region === activeFilter;
@@ -652,6 +656,11 @@
             }
             
             function renderRegionChart() {
+                const chartElement = document.getElementById('regionChart');
+                if (!chartElement || !chartElement.getContext) {
+                    return; // Skip chart rendering if canvas element doesn't exist
+                }
+                
                 const unitCounts = appData.hospitals.reduce((acc, h) => {
                     const unitType = h.edu_unit.includes('部') || h.edu_unit.includes('室') ? '部/室級單位' : '中心級單位';
                     acc[unitType] = (acc[unitType] || 0) + 1;
@@ -661,7 +670,7 @@
                 const labels = Object.keys(unitCounts);
                 const counts = Object.values(unitCounts);
                 
-                const ctx = document.getElementById('regionChart').getContext('2d');
+                const ctx = chartElement.getContext('2d');
                 if (hospitalChart) {
                     hospitalChart.destroy();
                 }
@@ -703,6 +712,10 @@
             }
 
             function setupFilters() {
+                if (!regionFiltersContainer) {
+                    return; // Skip filter setup if container doesn't exist
+                }
+                
                 const regions = ['All', '臺北區', '北區', '中區', '南區', '高屏區', '東區'];
                 regionFiltersContainer.innerHTML = '';
                 regions.forEach(region => {
@@ -724,6 +737,10 @@
             }
             
             function setupDetailsPage() {
+                if (!regionSelector || !hospitalSelector) {
+                    return; // Skip setup if elements don't exist
+                }
+                
                 const regions = ['臺北區', '北區', '中區', '南區', '高屏區', '東區'];
                 regionSelector.innerHTML = `<option value="">-- 請選擇區域 --</option>`;
                 regions.forEach(r => {
