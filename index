@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>臺灣醫學中心及奇美醫院教學部門組織架構分析報告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-button {
+            transition: all 0.3s ease;
+        }
+        .nav-button.active {
+            background-color: #0284c7; /* sky-600 */
+            color: white;
+        }
+        .nav-button:not(.active) {
+            background-color: #e2e8f0; /* slate-200 */
+            color: #1e293b; /* slate-800 */
+        }
+        .filter-button.active {
+            background-color: #0ea5e9; /* sky-500 */
+            color: white;
+            border-color: #0ea5e9;
+        }
+        .org-chart {
+            background-color: #f8fafc; /* slate-50 */
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0; /* slate-200 */
+        }
+        .org-chart ul {
+            padding-left: 1.5rem;
+            border-left: 2px solid #94a3b8; /* slate-400 */
+        }
+        .org-chart li {
+            position: relative;
+            margin-top: 0.5rem;
+            padding-left: 1rem;
+        }
+        .org-chart li::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 0.8rem;
+            width: 1rem;
+            height: 2px;
+            background-color: #94a3b8; /* slate-400 */
+        }
+        .org-chart li > div {
+            font-weight: 600;
+            background-color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            display: inline-block;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .pro-con-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .pro-con-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        .pro-con-grid ul {
+            list-style-position: inside;
+        }
+        .pro-card {
+            background-color: #f0fdf4; /* green-50 */
+            border-left: 4px solid #22c55e; /* green-500 */
+        }
+        .con-card {
+            background-color: #fff1f2; /* rose-50 */
+            border-left: 4px solid #f43f5e; /* rose-500 */
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">臺灣醫學中心及奇美醫院教學部門組織架構分析報告</h1>
+            <p class="text-lg text-slate-600 mt-2">互動式分析儀表板</p>
+        </header>
+
+        <nav class="flex flex-wrap justify-center items-center gap-2 md:gap-4 mb-8 sticky top-4 z-10 p-2 bg-slate-50/80 backdrop-blur-sm rounded-xl border border-slate-200">
+            <button id="nav-overview" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">總覽與比較</button>
+            <button id="nav-details" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">深度剖析</button>
+            <button id="nav-insights" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">綜合洞察</button>
+            <button id="nav-chimei-current" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">奇美醫院現況</button>
+            <button id="nav-chimei-options" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">組織架構選項</button>
+            <button id="nav-conclusion" class="nav-button font-semibold py-2 px-4 rounded-lg shadow-sm">結論</button>
+        </nav>
+
+        <main id="app-content">
+
+            <section id="content-overview" class="space-y-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">醫學中心教學單位層級分佈</h2>
+                    <p class="text-slate-600 mb-6">全臺23家醫學中心中，絕大多數（21家）採用「部」級單位（如教學部、醫教部）作為教學事務的最高主管機關，僅2家維持「中心」級。此數據突顯了設立高層級、權責統一的教學單位已成為國內頂尖醫院的主流趨勢。</p>
+                    <div class="chart-container">
+                        <canvas id="regionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">教學部門比較總覽</h2>
+                    <p class="text-slate-600 mb-4">下表詳細列出了全臺23家醫學中心的教學部門關鍵資訊。您可以使用下方的區域按鈕進行快速篩選，或在搜尋框中輸入關鍵字來尋找特定資訊。</p>
+                    <div class="flex flex-wrap gap-2 mb-4" id="region-filters">
+                    </div>
+                    <input type="text" id="searchInput" placeholder="搜尋醫院、單位、架構或業務..." class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
+                    <div class="overflow-x-auto mt-4">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">醫學中心</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">教學單位名稱</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">組織架構特色</th>
+                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">業務內容重點</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hospitals-table" class="bg-white divide-y divide-slate-200">
+                            </tbody>
+                        </table>
+                        <p id="no-results" class="text-center text-slate-500 py-8 hidden">找不到符合條件的結果。</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="content-details" class="hidden space-y-8">
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">各醫院深度剖析</h2>
+                    <p class="text-slate-600 mb-6">本區提供各家醫學中心教學部門的詳細介紹。請先選擇一個區域，然後從下拉式選單中選擇您感興趣的醫院，以查看其詳細的組織架構與核心業務。此設計旨在讓您能聚焦於特定機構進行深入了解。</p>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <select id="region-selector" class="w-full md:w-1/3 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500"></select>
+                        <select id="hospital-selector" class="w-full md:w-2/3 p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500"></select>
+                    </div>
+                </div>
+                <div id="hospital-details-content">
+                </div>
+            </section>
+            
+            <section id="content-insights" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">綜合洞察與奇美視角</h2>
+                    <p class="text-slate-600 mb-6">本區彙整了報告中的綜合分析與趨勢觀察，並特別融入奇美醫院的策略視角。您可以點擊下方的標題來展開或收合各個主題的詳細內容，以便更有效地吸收這些分析性資訊。</p>
+                </div>
+                <div id="insights-accordion" class="space-y-4">
+                </div>
+            </section>
+
+            <section id="content-chimei-current" class="hidden space-y-6">
+            </section>
+
+            <section id="content-chimei-options" class="hidden space-y-6">
+                 <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-slate-900">奇美醫院教學組織再造選項分析</h2>
+                    <p class="text-slate-600 mb-6">為因應未來醫學教育的挑戰與「健康台灣深耕計畫」的發展方向，奇美醫院教學組織架構面臨重塑的需求。以下針對三個潛在的組織改造方案，進行視覺化呈現與優劣勢比較，以作為決策參考。</p>
+                </div>
+                <div id="chimei-options-content" class="space-y-8">
+                </div>
+            </section>
+            
+            <section id="content-conclusion" class="hidden space-y-6">
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 py-4 border-t border-slate-200">
+            <p class="text-sm text-slate-500">資料來源：教學中心及實證醫學暨醫療政策中心內部分析報告</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const appData = {
+            hospitals: [
+                {
+                    name: "國立臺灣大學醫學院附設醫院", region: "臺北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "教育組、教材組、技能訓練組", 
+                    business_focus: "醫學生/住院醫師培訓、教材開發、技能訓練(OSCE等)",
+                    org: [{ name: "教育組", desc: "負責各類學員訓練計畫的規劃與執行。" },{ name: "教材組", desc: "負責教學所需教材的開發、製作與管理。" },{ name: "圖書組", desc: "管理醫學圖書館，提供館藏資料與醫學資訊資源服務。" },{ name: "臨床技能中心", desc: "提供模擬訓練環境，用於OSCE及各項臨床技能教學。" },{ name: "微創手術訓練中心", desc: "專注於高階微創手術技術的教學與訓練。" },{ name: "教師培育中心", desc: "負責全院臨床教師的培育與發展計畫。" },{ name: "標準化病人中心", desc: "訓練與管理標準化病人，用於臨床溝通與技能評量。" }],
+                    core_business: [{ name: "實習醫學生訓練 (UGY)", desc: "規劃與執行醫學系學生的臨床實習課程。" },{ name: "畢業後一般醫學訓練 (PGY)", desc: "負責PGY學員的招募、課程安排與訓練計畫。" },{ name: "醫事學生訓練", desc: "統籌各類醫事職類學生的實習申請與訓練事宜。" },{ name: "國際交流合作", desc: "辦理國外研修醫事人員及見習學生的申請與接待。" }]
+                },
+                {
+                    name: "臺北榮民總醫院", region: "臺北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "教學行政組、教師培育科、臨床技術訓練科、圖書組、實證醫學科", 
+                    business_focus: "教學行政、師資培訓、技能中心、圖書資訊、EBM推廣",
+                    org: [{ name: "教學行政組", desc: "處理國內外實見習學生、PGY學員、進修代訓人員等相關行政事宜。" },{ name: "教師培育科", desc: "專責臨床教師的培育與發展。" },{ name: "臨床技術訓練科", desc: "即臨床技術訓練中心，負責高擬真模擬訓練等業務。" },{ name: "醫療創新中心 (CiC)", desc: "專注於醫療與教學的創新研發，下設跨領域教育（IPE）、高擬真模擬訓練、以及XR延展實境等創新教學模組。" }],
+                    core_business: [{ name: "跨領域團隊合作照護訓練 (IPE)", desc: "設有專門的推廣平台與訓練計畫。" },{ name: "高擬真模擬訓練", desc: "運用高階模擬人與擬真環境，提供安全的臨床情境演練。" },{ name: "延展實境（XR）創新教學", desc: "積極導入VR與AR技術，開發XR教材與教學平台。" }]
+                },
+                {
+                    name: "三軍總醫院", region: "臺北區", edu_unit: "教學室", manager: "劉怡君 (中校組長)", 
+                    org_feature: "軍醫體系、臨床技能訓練中心", 
+                    business_focus: "醫學生見習、軍職訓練、軍醫教學研究",
+                    org: [{ name: "教學行政組", desc: "負責醫師聘任、醫院評鑑、教學訓練官委員會、經費管理等行政總管業務。" },{ name: "醫學教學組", desc: "負責實習醫學生、住院醫師、PGY學員的訓練計畫與行政管理。" },{ name: "醫事培訓科", desc: "負責專科護理師及各類醫事人員的教學行政與培訓計畫。" },{ name: "師資培訓科", desc: "負責教師發展中心（CFD）相關業務。" },{ name: "臨床技能訓練及測驗中心 (OSCE)", desc: "負責OSCE國考、模擬考、BLS等急救訓練及標準化病人相關業務。" }],
+                    core_business: [{ name: "勝任能力導向醫學教育（CBME）", desc: "積極推動CBME，並運用CePO系統進行教學評核管理。" },{ name: "急重症訓練", desc: "開設ATLS、ABLS、DSTC等特色課程。" },{ name: "擬真與技能訓練", desc: "擁有完善的OSCE中心與擬真中心。" }]
+                },
+                {
+                    name: "馬偕紀念醫院", region: "臺北區", edu_unit: "醫學教育部", manager: "范毓佩 (課長)", 
+                    org_feature: "實證醫學中心、教師培育中心、臨床技能中心", 
+                    business_focus: "醫學生實習、住院/專科醫師訓練、EBM、教學研究",
+                    org: [{ name: "院際整合", desc: "醫學教育部的業務橫跨台北、淡水、新竹、台東四大院區。" },{ name: "校院合作", desc: "與馬偕醫學院各學系深度合作，共同規劃課程。" }],
+                    core_business: [{ name: "臨床教學設施", desc: "建置PBL需求的教學診間與12間OSCE訓練教室。" },{ name: "人文與弱勢關懷", desc: "強調服務弱勢族群的能力與人文關懷。" }]
+                },
+                {
+                    name: "新光吳火獅紀念醫院", region: "臺北區", edu_unit: "教學組", manager: "穆淑琪 (主任)", 
+                    org_feature: "行政組、醫師教育、醫事教育、師資培育等", 
+                    business_focus: "教學評鑑、訓練、OSCE、師資培訓",
+                    org: [{ name: "行政組", desc: "統籌教學部行政、各委員會議及評鑑相關業務。" },{ name: "師資培育小組", desc: "負責師資培育、建教合作、國際學術交流及代訓等業務。" },{ name: "醫師教育小組", desc: "專責醫師的畢業前（UGY）與畢業後（PGY）一般醫學訓練。" },{ name: "醫事教育小組", desc: "專責各醫事職類的畢業前（UGY）與畢業後（PGY）訓練。" }],
+                    core_business: [{ name: "前瞻教育議題探索", desc: "積極舉辦學術研討會，探討如「AI在醫學教育的應用」等前瞻議題。" }]
+                },
+                {
+                    name: "國泰綜合醫院", region: "臺北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "精簡型", 
+                    business_focus: "實習、住院醫師訓練、院內持續教育",
+                    org: [{ name: "教學部", desc: "獨立的一級行政單位。" },{ name: "醫學研究部", desc: "獨立的一級單位，負責臨床醫學研究。" }],
+                    core_business: [{ name: "師資培育與評量", desc: "透過360度多元回饋、CBD、Mini-CEX等現代評量工具對學員進行評估。" },{ name: "跨院合作", desc: "作為清華大學學士後醫學系的教學醫院。" }]
+                },
+                {
+                    name: "臺北市立萬芳醫院", region: "臺北區", edu_unit: "教學部", manager: "陳揚卿 (教學副院長)", 
+                    org_feature: "教師發展中心、臨床技能中心、實證醫學中心、教學副院長", 
+                    business_focus: "醫學生/住院醫師訓練、師資發展、教學品質、技能與EBM",
+                    org: [{ name: "管理團隊", desc: "由教學副院長、教學部主任、行政副主任及各功能中心主任組成。" },{ name: "功能中心", desc: "下設教師發展中心、臨床技能中心、實證醫學中心、醫學教育研究中心。" }],
+                    core_business: [{ name: "數位學習平台", desc: "積極建置與運用e-learning TMS系統與e-Portfolio 2.0教學平台。" },{ name: "跨領域團隊訓練", desc: "強調跨領域與跨科際的團隊合作。" }]
+                },
+                {
+                    name: "亞東紀念醫院", region: "臺北區", edu_unit: "教學室", manager: "未公開", 
+                    org_feature: "臨床教師認證制度、學術研發室", 
+                    business_focus: "UGY/PGY訓練、護理/醫事人員訓練、臨床教師認證、學術研發",
+                    org: [{ name: "教學室", desc: "負責住院醫師、護理師、各醫事職類人員的教學訓練計畫與行政管理。" },{ name: "學術研發室", desc: "負責院內研究計畫、科技部計畫申請、論文認證與獎勵等。" }],
+                    core_business: [{ name: "臨床教師認證制度", desc: "建立了一套完善的臨床教師分級與認證辦法。" },{ name: "學術研究與成果轉化", desc: "大力推動院內研究計畫，並促進研究成果的專利申請與技術移轉。" }]
+                },
+                {
+                    name: "臺北慈濟醫院", region: "臺北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "與花蓮慈濟醫院為兄弟院區", 
+                    business_focus: "醫學生/住院醫師訓練、人文醫學",
+                     org: [{ name: "醫教會", desc: "作為教學部的指導單位。" },{ name: "功能分組/中心", desc: "業務上可區分為全人照護、實習醫學生、臨床技能中心、PGY、住院醫師等功能分組。" }],
+                    core_business: [{ name: "全人照護教育", desc: "將全人照護作為核心教學理念。" },{ name: "科技融入教學", desc: "積極推動VR體驗課程。" }]
+                },
+                {
+                    name: "衛生福利部雙和醫院", region: "臺北區", edu_unit: "教學部", manager: "劉如濟 (教學副院長)", 
+                    org_feature: "與北醫附醫資源共享", 
+                    business_focus: "醫學生實習、進修、PGY訓練、社區醫學",
+                    org: [{ name: "一般醫學訓練組", desc: "負責PGY訓練及一般醫學師資的培育。" },{ name: "教師發展中心", desc: "負責臨床教師的成長與發展。" }],
+                    core_business: [{ name: "一般醫學師資培育", desc: "定期主辦「一般醫學教師研習營」，是其教學業務一大亮點。" }]
+                },
+                {
+                    name: "林口長庚紀念醫院", region: "北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "跨院區協同，手術技能訓練中心", 
+                    business_focus: "體系統一規劃住院醫師、臨床技能、醫學生分發",
+                     org: [{ name: "體系化管理", desc: "與各院區教學單位協同，共享資源與標準。" },{ name: "校院合一", desc: "與長庚大學的合作極為密切。" }],
+                    core_business: [{ name: "龐大的訓練容量", desc: "擁有全國最多的PGY訓練名額。" },{ name: "國際化培訓重鎮", desc: "已培訓來自110個國家、超過4,600名外籍醫療人員。" },{ name: "卓越的臨床技能訓練", desc: "TMAC認證為第一名的「High-level OSCE center」。" }]
+                },
+                {
+                    name: "國立臺灣大學醫學院附設醫院新竹臺大分院", region: "北區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "臺大體系協同", 
+                    business_focus: "醫學生見習、住院醫師訓練",
+                    org: [{ name: "教育組", desc: "負責各類醫學訓練的規劃與執行。" },{ name: "圖書組", desc: "管理圖書館藏與資訊服務。" }],
+                    core_business: [{ name: "資源共享", desc: "依託台大總院的豐富資源。" },{ name: "區域人才培育", desc: "承擔區域醫療人才培育責任。" }]
+                },
+                {
+                    name: "臺中榮民總醫院", region: "中區", edu_unit: "教學部", manager: "黃金隆 (部主任)", 
+                    org_feature: "臨床訓練科、教學研究", 
+                    business_focus: "醫學生實習、住院醫師訓練、教學研究",
+                     org: [{ name: "臨床訓練科", desc: "負責各項臨床訓練計畫。" },{ name: "師資培育科", desc: "負責教師培育與發展。" },{ name: "MIST微創中心", desc: "專責微創手術訓練。" }],
+                    core_business: [{ name: "師資培育與獎勵", desc: "設有專門的師資培育科，並執行教學獎勵辦法。" },{ name: "體系內合作", desc: "與嘉義、埔里分院等有密切的教學合作。" }]
+                },
+                {
+                    name: "中國醫藥大學附設醫院", region: "中區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "含兒童醫院教學", 
+                    business_focus: "中西醫結合教學、住院醫師訓練",
+                    org: [{ name: "一般醫學組", desc: "負責PGY等一般醫學訓練。" },{ name: "技能及模擬訓練中心", desc: "提供各類臨床技能與模擬訓練。" }],
+                    core_business: [{ name: "數位化教學評估", desc: "開發並應用「mini-CEX.tw.entrust」APP作為臨床教學評估工具。" }]
+                },
+                {
+                    name: "彰化基督教醫院", region: "中區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "教學研究中心", 
+                    business_focus: "醫療人力培育、住院醫師/學生訓練",
+                     org: [{ name: "教師培育中心", desc: "負責師資培育。" },{ name: "全人照護教育中心", desc: "專責推動全人照護教育，並整合研究資源。" }],
+                    core_business: [{ name: "全人照護教育的深化", desc: "將生理、心理、靈性及社會四個面向融入教學。" },{ name: "數位學習平台", desc: "建置「醫學教育合作數位學習平台」。" }]
+                },
+                {
+                    name: "中山醫學大學附設醫院", region: "中區", edu_unit: "醫學教育部", manager: "辛宗翰 (醫教部副院長)", 
+                    org_feature: "中山醫大體系", 
+                    business_focus: "醫學生/住院醫師訓練、教學評鑑、師資培訓",
+                     org: [{ name: "醫教部", desc: "由副院長層級主管。" },{ name: "臨床技能訓練中心 (OSCE Center)", desc: "為通過認證的國家考場。" }],
+                    core_business: [{ name: "國家級OSCE考場", desc: "國內首屈一指的五星級OSCE國家考場。" },{ name: "研究創新", desc: "整合基礎與臨床研究，並結合學校成立AI人工智能中心。" }]
+                },
+                {
+                    name: "國立成功大學醫學院附設醫院", region: "南區", edu_unit: "教學中心", manager: "未公開", 
+                    org_feature: "臨床技能中心等小組", 
+                    business_focus: "臨床教學、人文教育、技能模擬",
+                    org: [{ name: "附屬關係", desc: "附設醫院直屬於醫學院，教學、研究與臨床服務三位一體。" },{ name: "學科整合", desc: "醫學院下設29個基礎與臨床學科。" }],
+                    core_business: [{ name: "研究生培育", desc: "設有多個研究所博士班，是高階醫學研究人才的培育重鎮。" }]
+                },
+                {
+                    name: "奇美醫療財團法人奇美醫院", region: "南區", edu_unit: "教學中心", manager: "未公開", 
+                    org_feature: "臨床技能中心、專案制管理", 
+                    business_focus: "南部教學重鎮、技能模擬、手術訓練",
+                    org: [{ name: "醫師組", desc: "內部分為住院醫師、PGY、實習醫學生、牙醫、中醫等五個小組。" },{ name: "醫事人員組", desc: "涵蓋護理、藥事等11個醫事職類。" }],
+                    core_business: [{ name: "全面醫事人員教學", desc: "涵蓋所有醫事職類的教學業務。" },{ name: "體系內合作", desc: "與柳營奇美、佳里奇美兩個區域教學醫院形成教學網絡。" }]
+                },
+                {
+                    name: "高雄榮民總醫院", region: "高屏區", edu_unit: "教研部", manager: "未公開", 
+                    org_feature: "教學/研究合一，教學科、研究科", 
+                    business_focus: "教學訓練、臨床研究、住院醫師訓練",
+                    org: [{ name: "醫學教學科", desc: "負責PGY、聯合訓練、實習醫事學生、國際培訓等教學業務。" },{ name: "醫學研究科", desc: "負責管理院內研究計畫、論文獎勵、教職申請、生物統計諮詢及臨床醫學研究室。" }],
+                    core_business: [{ name: "教學與研究並重", desc: "組織架構上將教學與研究並列。" },{ name: "研究支持服務", desc: "提供臨床個案報告指導、生物統計諮詢、儀器租用等完善的研究支持服務。" }]
+                },
+                {
+                    name: "高雄醫學大學附設中和紀念醫院", region: "高屏區", edu_unit: "臨床教育訓練部", manager: "未公開", 
+                    org_feature: "高醫大體系，臨床教學/訓練並重", 
+                    business_focus: "醫學生實習、住院/專科醫師訓練",
+                    org: [{ name: "校院合一", desc: "醫院的教學活動與大學各學院密不可分。" },{ name: "國際認證", desc: "通過JCI國際評鑑。" }],
+                    core_business: [{ name: "師資培育重鎮", desc: "定期且系統性地開辦一般醫學教師研習營與臨床教學實務訓練。" }]
+                },
+                {
+                    name: "高雄長庚紀念醫院", region: "高屏區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "跨院區協同，手術技能訓練中心", 
+                    business_focus: "體系統一規劃住院醫師、臨床技能、醫學生分發",
+                     org: [{ name: "住院醫師招募組", desc: "專責住院醫師的招募與管理。" },{ name: "PGY招募組", desc: "專責PGY學員的招募與相關事務。" }],
+                    core_business: [{ name: "師資培育", desc: "定期舉辦如「OSCE考官訓練核心課程」等高階師資培育活動。" }]
+                },
+                {
+                    name: "義大醫療財團法人義大醫院", region: "高屏區", edu_unit: "醫學教育部", manager: "楊生湳 (教育副院長)", 
+                    org_feature: "微創手術訓練中心、國際合作", 
+                    business_focus: "醫學生教學、微創特色、國際教育交流",
+                     org: [{ name: "高層領導", desc: "由教育副院長與醫學教育委員會主席共同領導。" },{ name: "校院合作", desc: "與義守大學醫學院、學士後醫學系等單位密切合作。" }],
+                    core_business: [{ name: "前瞻醫學教育研討", desc: "積極舉辦大型醫學教育研討會，探討主題包括Design Thinking、CBME等。" }]
+                },
+                {
+                    name: "佛教慈濟醫療財團法人花蓮慈濟醫院", region: "東區", edu_unit: "教學部", manager: "未公開", 
+                    org_feature: "慈濟大學附設，資源豐富", 
+                    business_focus: "臨床教學、人文關懷、PGY/專科訓練",
+                    org: [{ name: "師資培育中心", desc: "負責引進創新教學模式，並舉辦臨床教師培訓工作坊。" },{ name: "標準化病人中心", desc: "擁有專業的志工標準化病人團隊。" },{ name: "大體手術教學中心", desc: "推動獨特的「無語良師」大體模擬手術教學。" }],
+                    core_business: [{ name: "無語良師—大體模擬手術教學", desc: "全球獨創且最具代表性的教學特色。" },{ name: "數位教學支持", desc: "建立專門網站，提供教師遠端同步教學及數位課程錄製所需的各類線上免費工具教學。" }]
+                }
+            ],
+            insights: [
+                 {
+                    title: "教育治理與組織結構模式：主流趨勢與奇美策略",
+                    content: "深入檢視各家醫學中心的教學部門組織架構，可以發現一個顯著的現象：在評鑑制度的引導下，臺灣的醫學中心正朝向一個『標準化核心』與『特色化發展』並存的組織模式演進。幾乎所有醫學中心都設有<strong>臨床技能中心、教師培育中心</strong>及<strong>實證醫學中心</strong>。<br><br>然而，更關鍵的趨勢是治理層級的提升。絕大多數醫學中心均採用『部』級單位來統籌教學事務，這確保了教學單位具備足夠的行政權威與資源整合能力。<strong>對奇美醫院而言，現行的『中心』級單位平行架構，雖各有專精，但在推動如『鯉躍計劃』這類需要高度資源整合與跨科部協作的重大教改時，將面臨挑戰。</strong>將組織提升為『醫療教學部』，不僅是與國內頂尖醫院看齊，更是實現『健康台灣深耕計畫』中跨領域人才培育目標的必要策略佈局。"
+                },
+                {
+                    title: "臨床教育方法論的演進趨勢：奇美『鯉躍計劃』的對應",
+                    content: "從各家醫院核心業務分析，臺灣醫學教育正經歷深刻的方法論變革，與奇美醫院的『鯉躍計劃』四大核心策略高度契合：<br><br><strong>1. 勝任能力導向醫學教育 (CBME)：</strong> 已成主流，與奇美推動的 <strong>CBME/EPA/CCC</strong> 策略一致，目標是確保學員的臨床執業能力。<br><br><strong>2. 跨領域團隊合作照護 (IPE/IPP)：</strong> 各大醫院均將IPE/IPP列為重點，這與奇美『鯉躍計劃』中的<strong>師資培育</strong>與<strong>醫學人文</strong>策略緊密相關，強調透過培育具備跨領域合作能力的師資，來落實以病人為中心的整合照護。<br><br><strong>3. 科技賦能 (Technology-Enhanced Education)：</strong> 新興科技正重塑醫學教育的面貌。這正對應奇美的<strong>數位賦能</strong>策略，目標是將AI、VR等科技融入教學，提升學習效率與成效，培養符合未來醫療需求的智慧醫療人才。"
+                },
+                {
+                    title: "策略定位與競爭優勢：奇美的機會點",
+                    content: "在資訊透明度方面，奇美醫院的教學單位網站尚有提升空間，這是一個已知的機會點。然而，更關鍵的是，奇美醫院已在多個領域建立了獨特的差異化優勢，但這些優勢的潛力受限於現行的組織架構。<br><br><strong>奇美的獨特競爭優勢：</strong><br><ul class='list-disc list-inside space-y-2 text-slate-700'><li><strong>醫學人文底蘊：</strong> 緊鄰世界級的奇美博物館，擁有發展深刻醫學人文教育的獨特資源。</li><li><strong>AI智慧醫療整合：</strong> 積極導入AI於臨床與教學，具備發展智慧醫療人才的基礎。</li><li><strong>全人醫療核心價值：</strong> 已將全人醫療納入醫院發展的核心策略，並推動個別化的智能職涯發展規劃。</li><li><strong>學習型組織願景：</strong> 已提出邁向『學習型健康照護聯盟』的宏觀願景。</li></ul><br><strong>策略挑戰與轉型契機：</strong><br>這些珍貴的資產與願景，正是奇美在全國醫學中心中脫穎而出的關鍵。然而，要將這些潛力完全釋放，<strong>需要更高層級的策略整合與更有效率的資源調度</strong>。目前的『中心』級平行架構，難以有效統籌跨領域的人文、AI、職涯發展與聯盟合作等複雜專案。<br><br><strong>值得慶幸的是，政策的東風已然吹起。</strong>隨著政府大力推動『健康台灣深耕計畫』，鼓勵醫院發展跨領域人才與智慧醫療，現在正是奇美醫院順勢而為、進行組織升級的最佳時機。將教學單位提升為權責統一的『部』級架構，不僅是解決內部挑戰，更是抓住外部機遇，將現有競爭優勢最大化的關鍵一步。"
+                }
+            ],
+            chimeiAnalysis: {
+                currentSituation: {
+                    title: "奇美醫院教學組織現況與挑戰",
+                    content: `
+                        <p class="text-slate-600 mb-6">根據奇美醫院現有的公開資料與內部盤點，其醫學教育系統由一個高階的「醫學教育委員會」進行指導，委員會下設有多個平行的單位，主要包括「教學中心」與「教師培育中心」。這種架構雖然涵蓋了教學與師資培育兩大核心功能，但也潛藏著一些挑戰：</p>
+                        <ul class="list-disc list-inside space-y-2 text-slate-700 mb-6">
+                            <li><strong>權責界定模糊：</strong>「教學中心」的職掌範圍極廣，涵蓋了從全人醫學教育、各級醫師訓練到醫事人員教學等幾乎所有教學事務。與此同時，「教師培育中心」則專責師資的成長與發展。在實際運作中，教學活動與師資培育密不可分，平行的單位設置可能導致部分業務（如：教學方法創新、跨領域課程開發）的權責歸屬不清，增加跨單位協調的複雜度。</li>
+                            <li><strong>資源整合不易：</strong>教學資源（如預算、人力、空間）分散於不同的中心，可能難以進行最有效率的統籌與調度。例如，一個由教學中心主導的創新課程，需要師資培育中心配合培訓講師，若無一個更高層級的單位進行整合，資源協調的效率可能會降低。</li>
+                            <li><strong>專責人力不足：</strong>根據內部盤點，<strong>目前的「教師培育中心」除了主任為主管職外，並未配置任何正職的專責行政人員</strong>。這意味著所有師資培育相關的行政、企劃與執行業務，皆需依賴現有教學中心或其他單位的人力支援，這在長期發展上是不可持續的，也限制了師資培育計畫的深度與廣度。</li>
+                            <li><strong>缺乏單一權威窗口：</strong>對於院內各臨床科部或院外合作夥伴而言，缺乏一個層級夠高、權責統一的「教學部」，可能導致溝通成本增加，難以快速推動需要全院性支持的重大教學改革。</li>
+                        </ul>
+                        <p class="text-slate-600">這些挑戰凸顯了奇美醫院教學組織架構有進一步優化與整合的必要性，以應對未來醫學教育的發展趨勢。</p>
+                    `,
+                    comparison: {
+                        title: "教學「部」與「中心」之層級與策略比較",
+                        content: `在臺灣的醫學中心組織架構中，負責教學事務的單位名稱主要有「教學部」（或醫學教育部、教研部等）與「教學中心」兩種類型。這不僅是稱謂上的差異，更反映了組織層級、權責與策略定位的不同。<strong>普遍來說，「部」是醫院內的一級行政單位，層級高於「中心」，一個「教學部」底下可以設立多個功能性的「教學中心」。</strong><br><br>
+                        <div class="pro-con-grid mt-4">
+                            <div class="pro-card p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-green-800 mb-2">「教學部」模式：整合型治理</h4>
+                                <p class="text-green-700 font-semibold mb-2">優點：</p>
+                                <ul class="list-disc text-slate-700 space-y-1">
+                                    <li><strong>層級高，權責完整：</strong> 作為一級單位，通常由副院長層級的主管領導，使其在跨科部協調、資源爭取與政策推動上具備顯著優勢。</li>
+                                    <li><strong>資源整合與綜效：</strong> 有利於將旗下各個功能性「中心」的資源進行整合與優化配置，避免資源重複投入，產生一加一大於二的綜效。</li>
+                                    <li><strong>策略性地位：</strong> 能更直接地參與醫院整體的發展策略制定，確保醫學教育的目標與醫院的長期願景保持一致。</li>
+                                </ul>
+                            </div>
+                            <div class="con-card p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-rose-800 mb-2">「教學部」模式：整合型治理</h4>
+                                <p class="text-rose-700 font-semibold mb-2">缺點：</p>
+                                <ul class="list-disc text-slate-700 space-y-1">
+                                    <li><strong>潛在的官僚化風險：</strong> 較大的組織規模與較長的指揮鏈，可能導致行政流程變得複雜，決策速度相對較慢。</li>
+                                    <li><strong>內部協調成本：</strong> 單位內部各組、科、中心之間也需要投入相當的溝通與協調成本，以避免本位主義。</li>
+                                </ul>
+                            </div>
+                            <div class="pro-card p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-green-800 mb-2">「教學中心」模式：專注型發展</h4>
+                                <p class="text-green-700 font-semibold mb-2">優點：</p>
+                                <ul class="list-disc text-slate-700 space-y-1">
+                                    <li><strong>高度專注與靈活：</strong> 組織扁平，決策鏈短，在推動特定教學創新或執行專案時，能夠更快速、靈活地應對變化。</li>
+                                    <li><strong>與大學體系無縫接軌：</strong> 對於與大學醫學院高度整合的機構，「教學中心」模式能更有效地作為醫院與醫學院之間的橋樑。</li>
+                                </ul>
+                            </div>
+                            <div class="con-card p-4 rounded-lg">
+                                <h4 class="font-bold text-lg text-rose-800 mb-2">「教學中心」模式：專注型發展</h4>
+                                <p class="text-rose-700 font-semibold mb-2">缺點：</p>
+                                <ul class="list-disc text-slate-700 space-y-1">
+                                    <li><strong>行政權威與資源協調能力受限：</strong> 層級較低，可能缺乏足夠的行政權威去協調全院性的教學事務或爭取跨科部的資源。</li>
+                                    <li><strong>權責範圍可能較為零散：</strong> 若教學事權分散，缺乏統一的整合與監督機制，不利於建立全院一致的教學品質標準。</li>
+                                </ul>
+                            </div>
+                        </div>
+                        `
+                    }
+                },
+                options: [
+                    {
+                        title: "選項一：改制提升為教學部 (策略性首選)",
+                        description: "此方案將現有的教學相關單位進行整合，成立院級一級單位「醫療教學部」，將教學中心與師資培育中心改制為其下的二級單位，並納入多個現代醫學教育所需的功能性中心與小組，建立一個權責統一、資源整合的現代化教學治理架構。",
+                        orgChart: {
+                            name: "奇美醫院醫療教學部 (一級單位)",
+                            children: [
+                                { name: "教學中心", children: [
+                                    { name: "一般科" },
+                                    { name: "見實習/住院醫師訓練" },
+                                    { name: "CBME小組、CCC等" }
+                                ]},
+                                { name: "師資培育中心", children: [
+                                    { name: "教師分階認定" }
+                                ]},
+                                { name: "臨床技能中心", children: [
+                                    { name: "OSCE、擬真、IPP、IPE" }
+                                ]},
+                                { name: "視聽傳播中心", children: [
+                                    { name: "數位影音教材製作" }
+                                ]},
+                                { name: "醫學圖書館", children: [
+                                    { name: "資訊管理、KM系統" }
+                                ]},
+                                { name: "實證醫學中心" },
+                                { name: "醫學人文中心", children: [
+                                    { name: "友善、平等、藝術、洞察" }
+                                ]},
+                                { name: "數位教材創新、醫療數位賦能教育小組" },
+                                { name: "臨床紀錄審查小組" },
+                                { name: "員工教育小組", children: [
+                                    { name: "配合職涯發展計劃的個別化教育" }
+                                ]},
+                                { name: "醫學教育研究小組" }
+                            ]
+                        },
+                        pros: [
+                            "<strong>符合國家級發展計畫</strong>：升級為『部』級單位，能更有效地統籌規劃，符合『健康台灣深耕計畫』中對『範疇二、規劃多元人才培訓』的要求，特別是推動『跨領域團隊合作』與『發展多元之跨職類人才培訓創新模式』。",
+                            "<strong>提升策略層級與資源整合</strong>：『部』級單位擁有更高的行政權威，能有效整合教學中心、師資培育中心及其他新增單位，避免資源分散，集中力量推動如CBME、數位賦能等全院性重大教改計畫。",
+                            "<strong>與國內頂尖醫學中心看齊</strong>：全臺灣絕大多數醫學中心均設有『教學部』，升級有助於提升奇美在全國醫學教育領域的能見度與競爭力，有利於人才招募與學術合作。",
+                            "<strong>權責清晰，溝通高效</strong>：建立單一且權威的教學事務窗口，簡化內部協調流程，提升行政效率與決策品質。"
+                        ],
+                        cons: [
+                            "<strong>初期組織變動較大</strong>：需要重新定義各中心與小組的職掌、人員配置與作業流程，可能需要較長的磨合期。",
+                            "<strong>潛在的官僚化風險</strong>：組織層級增加，若未妥善設計流程，可能導致決策鏈變長，降低對新興教學需求的反應速度。"
+                        ]
+                    },
+                    {
+                        title: "選項二：維持教學中心，內部擴充與整合",
+                        description: "此方案維持「教學中心」的單位層級，但將「師資培育中心」的職能併入，並在中心內部增設多個功能性小組，以強化其業務廣度與深度。",
+                        orgChart: {
+                            name: "教學中心",
+                            children: [
+                                { name: "師資培育中心", children: [
+                                    { name: "全人醫療教育+ILP/ILE小組" },
+                                    { name: "創新教學小組" },
+                                    { name: "教師認證+教職/教師評核小組" },
+                                ]},
+                                { name: "臨床技能中心", children: [ { name: "OSCE、擬真、IPP、IPE" } ]},
+                                { name: "視聽傳播中心", children: [ { name: "含數位影音教材製作" } ]},
+                                { name: "醫學圖書館", children: [ { name: "含資訊管理、KM系統" } ]},
+                                { name: "實證醫學中心" },
+                                { name: "CBME+EPA+CCC小組" },
+                                { name: "醫學人文中心或小組" },
+                                { name: "醫學教育及醫品病安研究小組" },
+                                { name: "醫療數位賦能教育小組" },
+                                { name: "醫療數位實驗室" },
+                                { name: "醫事人員教育訓練小組" },
+                                { name: "一般科" },
+                                { name: "員工教育訓練小組" },
+                                { name: "綜合事務小組" }
+                            ]
+                        },
+                        pros: [
+                            "<strong>組織變動衝擊較小</strong>：在現有架構下進行擴充，人員與業務的調整相對單純，實施阻力較小。",
+                            "<strong>維持組織彈性</strong>：「中心」級的扁平化架構，有利於快速應對特定專案或創新教學的需求，決策較為靈活。",
+                            "<strong>職能整合</strong>：將師資培育併入教學中心，解決了部分權責重疊的問題，使教學與師培的關係更緊密。"
+                        ],
+                        cons: [
+                            "<strong>行政權威與資源協調能力依然受限</strong>：未能從根本上解決「中心」級單位在跨部科協調與資源爭取上的劣勢，推動全院性改革仍可能面臨挑戰。",
+                            "<strong>單位內部過於龐雜</strong>：將所有新增功能納入單一中心，可能導致內部管理幅度過大，協調成本依然存在。",
+                            "<strong>策略地位未能提升</strong>：在爭取院級資源或參與全院策略規劃時，仍處於相對弱勢的地位，與多數醫學中心的「部」級單位不對等。"
+                        ]
+                    },
+                    {
+                        title: "選項三：雙中心並行，各自強化職能",
+                        description: "此方案維持「教學中心」與「師資培育中心」為兩個平行的一級單位，但對兩者的內部組織與職掌進行更明確的細化與分工。",
+                        orgChart: {
+                            name: "醫學教育委員會",
+                            children: [
+                                { name: "師資培育中心 (一級單位)", children: [
+                                    { name: "全人醫療教育小組" },
+                                    { name: "醫學人文小組" },
+                                    { name: "創新教學小組" },
+                                    { name: "ILP/ILE小組" },
+                                    { name: "教師認證+教職/教師評核小組" },
+                                    { name: "CCC小組" },
+                                    { name: "其他事務" }
+                                ]},
+                                { name: "教學中心 (一級單位)", children: [
+                                    { name: "臨床技能中心" },
+                                    { name: "視聽傳播中心" },
+                                    { name: "醫學圖書館" },
+                                    { name: "實證醫學中心" },
+                                    { name: "CBME推動小組" },
+                                    { name: "醫學教育及醫品病安研究小組" },
+                                    { name: "醫療數位賦能教育小組", children: [ { name: "含醫療數位教學實驗室" } ] },
+                                    { name: "醫事人員教育訓練小組 + 員工教育小組" },
+                                    { name: "一般醫學科" },
+                                    { name: "綜合事務小組" }
+                                ]}
+                            ]
+                        },
+                        pros: [
+                            "<strong>專業分工明確</strong>：教學與師培各自成為獨立的一級單位，權責劃分最為清晰，有利於在各自的專業領域深度發展。",
+                            "<strong>雙引擎驅動</strong>：兩個中心可以各自獨立爭取資源與推動專案，形成雙引擎發展模式。",
+                            "<strong>維持現有高層架構</strong>：對於習慣現有架構的人員來說，變動感受最小。"
+                        ],
+                        cons: [
+                            "<strong>資源分散與協調成本最高</strong>：兩個平行的單位最容易造成資源重複投入與本位主義，所有跨領域的合作都需要更高層級的介入協調，行政效率最低。",
+                            "<strong>未能解決根本問題</strong>：此方案固化了現有架構的缺點，未能建立一個統一的醫學教育領導核心，不利於應對需要高度整合的未來挑戰。",
+                            "<strong>與主流趨勢背道而馳</strong>：多數醫學中心傾向於整合教學資源，此方案反其道而行，可能在長期發展中處於不利地位。"
+                        ]
+                    }
+                ],
+                conclusion: {
+                    title: "結論：重塑教學榮光，邁向學習型健康照護聯盟",
+                    content: `
+                        <p class="text-slate-600 mb-6">本分析報告從全國醫學中心的宏觀比較出發，深入探討了臺灣頂尖教學醫院的組織趨勢與方法論演進，最終聚焦於奇美醫院教學組織再造的策略選項。分析結果清晰地指出，一個權責統一、資源整合、層級提升的「醫療教學部」，是奇美醫院應對未來挑戰、掌握發展機遇的最佳路徑。</p>
+                        <p class="text-slate-600 mb-6">選擇提升為「部」級單位，其意義遠不止於組織名稱的變更。這代表了一種策略性的宣示：</p>
+                        <ul class="list-disc list-inside space-y-3 text-slate-700 mb-6">
+                            <li><strong>對內，是重塑奇美醫學教育的承諾。</strong>這意味著醫院將投入更穩定的資源（特別是專責人力），建立更高效的治理架構，以系統性地推動CBME、IPE、數位賦能等現代化教學改革。這不僅是對學習者負責，更是對教學者的強力支持，透過優化教學環境、肯定教學價值，全面落實對員工的價值主張(Employee Value Proposition, EVP)，讓每一位投身教育的同仁都能感受到尊重與成長。</li>
+                            <li><strong>對外，是邁向學習型健康照護聯盟的起點。</strong>一個強而有力的教學部，將成為奇美醫院推動院際合作、鏈結學術資源、吸引頂尖人才的磁石。它將使奇美有能力主導區域性的教學合作網絡，分享資源、共同成長，逐步實現「學習型健康照-護聯盟」(Learning Healthcare System Alliance)的宏大願景。</li>
+                        </ul>
+                        <p class="text-slate-600 font-semibold">總而言之，此次組織再造不僅是一次內部的行政調整，更是一次抓住歷史機遇、重新定義奇美醫學教育品牌價值的策略行動。這是一個艱鉅但必要的決定，它將為奇美醫院在下一個十年的激烈競爭中，奠定最堅實的發展基石。</p>
+                    `
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = {
+                overview: document.getElementById('content-overview'),
+                details: document.getElementById('content-details'),
+                insights: document.getElementById('content-insights'),
+                chimei_current: document.getElementById('content-chimei-current'),
+                chimei_options: document.getElementById('content-chimei-options'),
+                conclusion: document.getElementById('content-conclusion'),
+            };
+
+            const navButtons = {
+                overview: document.getElementById('nav-overview'),
+                details: document.getElementById('nav-details'),
+                insights: document.getElementById('nav-insights'),
+                chimei_current: document.getElementById('nav-chimei-current'),
+                chimei_options: document.getElementById('nav-chimei-options'),
+                conclusion: document.getElementById('nav-conclusion'),
+            };
+            
+            const searchInput = document.getElementById('searchInput');
+            const regionFiltersContainer = document.getElementById('region-filters');
+            const hospitalsTableBody = document.getElementById('hospitals-table');
+            const noResultsP = document.getElementById('no-results');
+
+            const regionSelector = document.getElementById('region-selector');
+            const hospitalSelector = document.getElementById('hospital-selector');
+            const hospitalDetailsContent = document.getElementById('hospital-details-content');
+
+            const insightsAccordion = document.getElementById('insights-accordion');
+            const chimeiCurrentContent = document.getElementById('content-chimei-current');
+            const chimeiOptionsContent = document.getElementById('chimei-options-content');
+            const conclusionContent = document.getElementById('content-conclusion');
+
+            let activeFilter = 'All';
+            let hospitalChart;
+
+            function switchView(view) {
+                Object.values(sections).forEach(s => s.classList.add('hidden'));
+                Object.values(navButtons).forEach(b => b.classList.remove('active'));
+                
+                const viewKey = view.replace(/-/g, '_');
+                sections[viewKey].classList.remove('hidden');
+                navButtons[viewKey].classList.add('active');
+            }
+
+            function renderComparisonTable(hospitals) {
+                hospitalsTableBody.innerHTML = '';
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                const filteredHospitals = hospitals.filter(h => {
+                    const matchesFilter = activeFilter === 'All' || h.region === activeFilter;
+                    const matchesSearch = searchTerm === '' || 
+                                          h.name.toLowerCase().includes(searchTerm) ||
+                                          h.edu_unit.toLowerCase().includes(searchTerm) ||
+                                          (h.org_feature && h.org_feature.toLowerCase().includes(searchTerm)) ||
+                                          (h.business_focus && h.business_focus.toLowerCase().includes(searchTerm));
+                    return matchesFilter && matchesSearch;
+                });
+
+                if (filteredHospitals.length === 0) {
+                    noResultsP.classList.remove('hidden');
+                } else {
+                    noResultsP.classList.add('hidden');
+                }
+
+                filteredHospitals.forEach(h => {
+                    const row = `
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-3 whitespace-nowrap"><div class="text-sm font-medium text-slate-900">${h.name}</div></td>
+                            <td class="px-4 py-3 text-sm text-slate-600">${h.edu_unit}</td>
+                            <td class="px-4 py-3 text-sm text-slate-600">${h.org_feature || ''}</td>
+                            <td class="px-4 py-3 text-sm text-slate-600">${h.business_focus || ''}</td>
+                        </tr>
+                    `;
+                    hospitalsTableBody.innerHTML += row;
+                });
+            }
+            
+            function renderRegionChart() {
+                const unitCounts = appData.hospitals.reduce((acc, h) => {
+                    const unitType = h.edu_unit.includes('部') || h.edu_unit.includes('室') ? '部/室級單位' : '中心級單位';
+                    acc[unitType] = (acc[unitType] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const labels = Object.keys(unitCounts);
+                const counts = Object.values(unitCounts);
+                
+                const ctx = document.getElementById('regionChart').getContext('2d');
+                if (hospitalChart) {
+                    hospitalChart.destroy();
+                }
+                hospitalChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '醫學中心數量',
+                            data: counts,
+                            backgroundColor: [
+                                'rgba(2, 132, 199, 0.7)', // sky-600
+                                'rgba(244, 63, 94, 0.7)'  // rose-500
+                            ],
+                            borderColor: [
+                                'rgba(2, 132, 199, 1)',
+                                'rgba(244, 63, 94, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` ${context.label}: ${context.raw} 家`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function setupFilters() {
+                const regions = ['All', '臺北區', '北區', '中區', '南區', '高屏區', '東區'];
+                regionFiltersContainer.innerHTML = '';
+                regions.forEach(region => {
+                    const button = document.createElement('button');
+                    button.textContent = region === 'All' ? '全部區域' : region;
+                    button.dataset.filter = region;
+                    button.className = 'filter-button px-3 py-1 border border-slate-300 rounded-full text-sm font-medium transition';
+                    if (region === 'All') {
+                        button.classList.add('active');
+                    }
+                    button.addEventListener('click', () => {
+                        activeFilter = region;
+                        document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        renderComparisonTable(appData.hospitals);
+                    });
+                    regionFiltersContainer.appendChild(button);
+                });
+            }
+            
+            function setupDetailsPage() {
+                const regions = ['臺北區', '北區', '中區', '南區', '高屏區', '東區'];
+                regionSelector.innerHTML = `<option value="">-- 請選擇區域 --</option>`;
+                regions.forEach(r => {
+                    regionSelector.innerHTML += `<option value="${r}">${r}</option>`;
+                });
+
+                regionSelector.addEventListener('change', () => {
+                    const selectedRegion = regionSelector.value;
+                    const hospitalsInRegion = appData.hospitals.filter(h => h.region === selectedRegion);
+                    
+                    hospitalSelector.innerHTML = `<option value="">-- 請選擇醫院 --</option>`;
+                    hospitalsInRegion.forEach(h => {
+                        hospitalSelector.innerHTML += `<option value="${h.name}">${h.name}</option>`;
+                    });
+                    hospitalDetailsContent.innerHTML = '';
+                });
+
+                hospitalSelector.addEventListener('change', () => {
+                    const selectedHospitalName = hospitalSelector.value;
+                    if (!selectedHospitalName) {
+                        hospitalDetailsContent.innerHTML = '';
+                        return;
+                    }
+                    
+                    const hospital = appData.hospitals.find(h => h.name === selectedHospitalName);
+                    if (hospital && hospital.org) {
+                        renderHospitalDetails(hospital);
+                    }
+                });
+            }
+            
+            function renderHospitalDetails(hospital) {
+                 const orgHtml = hospital.org.map(item => `
+                    <li>
+                        <div class="font-semibold text-sky-700">${item.name}</div>
+                        <p class="text-slate-600">${item.desc}</p>
+                    </li>
+                `).join('');
+
+                const coreBusinessHtml = hospital.core_business.map(item => `
+                    <li>
+                        <div class="font-semibold text-slate-800">${item.name}</div>
+                        <p class="text-slate-600">${item.desc}</p>
+                    </li>
+                `).join('');
+
+                const detailHtml = `
+                    <div class="bg-white p-6 rounded-lg shadow-md animate-fade-in">
+                        <h3 class="text-2xl font-bold text-slate-900">${hospital.name}</h3>
+                        <p class="text-md text-slate-500 mb-6">${hospital.region} - ${hospital.edu_unit}</p>
+                        
+                        <div class="mt-6 border-t pt-6">
+                            <h4 class="text-xl font-semibold mb-3 text-slate-800">組織架構</h4>
+                            <div class="org-chart">
+                                <ul class="space-y-4">${orgHtml}</ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 border-t pt-6">
+                            <h4 class="text-xl font-semibold mb-3 text-slate-800">核心業務</h4>
+                            <ul class="space-y-4 list-none">${coreBusinessHtml}</ul>
+                        </div>
+                    </div>
+                `;
+                hospitalDetailsContent.innerHTML = detailHtml;
+            }
+
+            function setupInsightsAccordion() {
+                insightsAccordion.innerHTML = '';
+                appData.insights.forEach((insight, index) => {
+                    const accordionItem = `
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                            <button class="w-full flex justify-between items-center text-left p-4 focus:outline-none" data-accordion-target="${index}">
+                                <h3 class="text-xl font-semibold text-slate-900">${insight.title}</h3>
+                                <span class="transform transition-transform duration-300">
+                                    <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </span>
+                            </button>
+                            <div id="accordion-content-${index}" class="px-4 pb-4 text-slate-700 leading-relaxed hidden">
+                                ${insight.content}
+                            </div>
+                        </div>
+                    `;
+                    insightsAccordion.innerHTML += accordionItem;
+                });
+
+                document.querySelectorAll('[data-accordion-target]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetId = button.dataset.accordionTarget;
+                        const content = document.getElementById(`accordion-content-${targetId}`);
+                        const icon = button.querySelector('svg');
+                        
+                        if(content.classList.contains('hidden')) {
+                            content.classList.remove('hidden');
+                            icon.parentElement.classList.add('rotate-180');
+                        } else {
+                            content.classList.add('hidden');
+                            icon.parentElement.classList.remove('rotate-180');
+                        }
+                    });
+                });
+            }
+
+            function renderChimeiCurrent() {
+                const data = appData.chimeiAnalysis.currentSituation;
+                const html = `
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4 text-slate-900">${data.title}</h2>
+                        ${data.content}
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h3 class="text-2xl font-bold mb-4 text-slate-900">${data.comparison.title}</h3>
+                        <div class="text-slate-700 leading-relaxed">${data.comparison.content}</div>
+                    </div>
+                `;
+                chimeiCurrentContent.innerHTML = html;
+            }
+
+            function renderOrgChart(node) {
+                if (!node.children || node.children.length === 0) {
+                    return `<li><div>${node.name}</div></li>`;
+                }
+                const childrenHtml = node.children.map(child => renderOrgChart(child)).join('');
+                return `
+                    <li>
+                        <div>${node.name}</div>
+                        <ul>${childrenHtml}</ul>
+                    </li>
+                `;
+            }
+
+            function renderChimeiOptions() {
+                chimeiOptionsContent.innerHTML = '';
+                appData.chimeiAnalysis.options.forEach(option => {
+                    const prosHtml = option.pros.map(p => `<li class="mb-1">${p}</li>`).join('');
+                    const consHtml = option.cons.map(c => `<li class="mb-1">${c}</li>`).join('');
+                    const orgChartHtml = renderOrgChart(option.orgChart);
+
+                    const optionHtml = `
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h3 class="text-2xl font-bold text-sky-800 mb-2">${option.title}</h3>
+                            <p class="text-slate-600 mb-6">${option.description}</p>
+                            
+                            <div class="mb-6">
+                                <h4 class="text-xl font-semibold mb-3 text-slate-800">視覺化組織架構</h4>
+                                <div class="org-chart">
+                                    <ul>${orgChartHtml}</ul>
+                                </div>
+                            </div>
+
+                            <div class="pro-con-grid mt-6">
+                                <div class="pro-card p-4 rounded-lg">
+                                    <h4 class="font-bold text-lg text-green-800 mb-2">優點</h4>
+                                    <ul class="list-disc text-slate-700 space-y-1">${prosHtml}</ul>
+                                </div>
+                                <div class="con-card p-4 rounded-lg">
+                                    <h4 class="font-bold text-lg text-rose-800 mb-2">缺點</h4>
+                                    <ul class="list-disc text-slate-700 space-y-1">${consHtml}</ul>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    chimeiOptionsContent.innerHTML += optionHtml;
+                });
+            }
+
+            function renderConclusion() {
+                const data = appData.chimeiAnalysis.conclusion;
+                const html = `
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4 text-slate-900">${data.title}</h2>
+                        <div class="text-slate-700 leading-relaxed space-y-4">${data.content}</div>
+                    </div>
+                `;
+                conclusionContent.innerHTML = html;
+            }
+
+            function init() {
+                // Setup Navigation
+                Object.keys(navButtons).forEach(key => {
+                    navButtons[key].addEventListener('click', () => switchView(key.replace(/_/g, '-')));
+                });
+
+                // Initial Render
+                switchView('overview');
+                renderComparisonTable(appData.hospitals);
+                renderRegionChart();
+                setupFilters();
+                setupDetailsPage();
+                setupInsightsAccordion();
+                renderChimeiCurrent();
+                renderChimeiOptions();
+                renderConclusion();
+
+                // Add Event Listeners
+                searchInput.addEventListener('input', () => renderComparisonTable(appData.hospitals));
+            }
+
+            init();
+        });
+    </script>
+</body>
+</html>
