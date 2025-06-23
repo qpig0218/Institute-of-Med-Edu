@@ -98,6 +98,30 @@
             background-color: #fff1f2; /* rose-50 */
             border-left: 4px solid #f43f5e; /* rose-500 */
         }
+        
+        /* Mobile responsive table improvements */
+        @media (max-width: 767px) {
+            .comparison-table th {
+                font-size: 0.75rem; /* text-xs */
+                padding: 0.5rem 0.25rem; /* py-2 px-1 */
+            }
+            .comparison-table td {
+                font-size: 0.75rem; /* text-xs */
+                padding: 0.5rem 0.25rem; /* py-2 px-1 */
+                word-wrap: break-word;
+                word-break: break-word;
+                hyphens: auto;
+            }
+            .comparison-table .hospital-name {
+                white-space: normal !important;
+                min-width: 80px;
+                max-width: 120px;
+            }
+            .comparison-table td:nth-child(3),
+            .comparison-table td:nth-child(4) {
+                max-width: 150px;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -136,13 +160,13 @@
                     </div>
                     <input type="text" id="searchInput" placeholder="搜尋醫院、單位、架構或業務..." class="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500">
                     <div class="overflow-x-auto mt-4">
-                        <table class="min-w-full divide-y divide-slate-200">
+                        <table class="comparison-table min-w-full divide-y divide-slate-200">
                             <thead class="bg-slate-100">
                                 <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">醫學中心</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">教學單位名稱</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">組織架構特色</th>
-                                    <th class="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">業務內容重點</th>
+                                    <th class="px-4 py-3 md:text-xs text-sm font-bold text-slate-600 uppercase tracking-wider text-left">醫學中心</th>
+                                    <th class="px-4 py-3 md:text-xs text-sm font-bold text-slate-600 uppercase tracking-wider text-left">教學單位名稱</th>
+                                    <th class="px-4 py-3 md:text-xs text-sm font-bold text-slate-600 uppercase tracking-wider text-left">組織架構特色</th>
+                                    <th class="px-4 py-3 md:text-xs text-sm font-bold text-slate-600 uppercase tracking-wider text-left">業務內容重點</th>
                                 </tr>
                             </thead>
                             <tbody id="hospitals-table" class="bg-white divide-y divide-slate-200">
@@ -645,7 +669,7 @@
                 filteredHospitals.forEach(h => {
                     const row = `
                         <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-3 whitespace-nowrap"><div class="text-sm font-medium text-slate-900">${h.name}</div></td>
+                            <td class="px-4 py-3 md:whitespace-nowrap hospital-name"><div class="text-sm font-medium text-slate-900">${h.name}</div></td>
                             <td class="px-4 py-3 text-sm text-slate-600">${h.edu_unit}</td>
                             <td class="px-4 py-3 text-sm text-slate-600">${h.org_feature || ''}</td>
                             <td class="px-4 py-3 text-sm text-slate-600">${h.business_focus || ''}</td>
